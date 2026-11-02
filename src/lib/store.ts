@@ -55,6 +55,16 @@ export async function getStats(): Promise<Record<string, DayStats>> {
   return (stats as Record<string, DayStats> | undefined) ?? {};
 }
 
+/** Time of the last card on any site; decides whether a fresh page gets one on its first scroll. */
+export async function getLastPromptAt(): Promise<number> {
+  const { lastPromptAt } = await ext.storage.local.get("lastPromptAt");
+  return (lastPromptAt as number | undefined) ?? 0;
+}
+
+export async function markPrompted(): Promise<void> {
+  await ext.storage.local.set({ lastPromptAt: Date.now() });
+}
+
 export async function recordOutcome(key: string, outcome: Outcome): Promise<void> {
   const now = Date.now();
   const [progress, stats] = await Promise.all([getProgress(), getStats()]);

@@ -50,9 +50,10 @@ which those versions introduced. The MVP needs no background script.
    does not count. Then the modal closes.
 6. Missed cards come back sooner (spaced repetition, §5).
 
-"First scroll" is re-armed per tab on page load. SPA navigation
-(`pushState`/`popstate`) does **not** re-arm it, so clicking around is not a
-way out.
+"First scroll" only applies to a fresh session: on page load it is armed only
+if no card was shown on any site in the last 15 minutes (`lastPromptAt` in
+storage). Reloads and new tabs shortly after a card wait for a full screen like
+everything else. SPA navigation (`pushState`/`popstate`) never re-arms it.
 
 ## 3. Measuring "one screen length"
 
@@ -63,9 +64,11 @@ way out.
 - **Swipe feeds** (YouTube Shorts, TikTok, Instagram Reels): pixels are
   meaningless. Count item changes instead (URL change like `/shorts/<id>`, or a
   change of the visible `<video>`). Default: 1 item = 1 screen.
-- "First scroll" = the first scroll delta above a small noise threshold
-  (~20 px) or the first swipe-feed item change, so programmatic jitter on load
-  doesn't count.
+- **Only user-driven scrolling counts:** a scroll is counted only within
+  1.5 s of a wheel/touch/key/pointer event (or while a pointer is held, for
+  scrollbar drags). Scroll restoration on reload and scripted jumps are ignored.
+- "First scroll" = the first user scroll delta above ~20 px or the first
+  swipe-feed item change.
 - Meter state lives per tab in the content script.
 
 ## 4. The modal (not skippable)

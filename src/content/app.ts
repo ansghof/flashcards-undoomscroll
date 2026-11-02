@@ -2,10 +2,20 @@ import { ext } from "../lib/browser";
 import { checkAnswer, checkCopy, expectedAnswer, type Direction } from "../lib/check";
 import { CARDS, type Card } from "../lib/deck";
 import { pickCard } from "../lib/scheduler";
-import { getProgress, getSettings, recordOutcome, withDefaults, type Settings } from "../lib/store";
+import {
+  getLastPromptAt,
+  getProgress,
+  getSettings,
+  markPrompted,
+  recordOutcome,
+  withDefaults,
+  type Settings,
+} from "../lib/store";
 import { PageLock } from "./lock";
 import { ScrollMeter } from "./meter";
 import { Modal, type Prompt } from "./modal";
+
+const FRESH_SESSION_MS = 15 * 60_000;
 
 function buildPrompt(card: Card, dir: Direction, strict: boolean): Prompt {
   const expected = expectedAnswer(card, dir);
@@ -34,8 +44,11 @@ export async function start(siteId: string): Promise<void> {
   let lastKey: string | undefined;
   const isOwn = (e: Event) => modal !== null && e.composedPath().includes(modal.host);
 
+  // Only a fresh session gets a card on the first scroll; reloads and new
+  // tabs shortly after a card wait for a full screen like everything else.
+  const armed = Date.now() - (await getLastPromptAt()) > FRESH_SESSION_MS;
   const lock = new PageLock(isOwn, () => modal?.focus());
-  const meter = new ScrollMeter(() => settings.factor, trigger, isOwn);
+  const meter = new ScrollMeter(armed, () => settings.factor, trigger, isOwn);
 
   async function trigger(): Promise<void> {
     if (meter.locked || settings.disabledSites.includes(siteId)) return;
@@ -45,6 +58,7 @@ export async function start(siteId: string): Promise<void> {
       const dirs: Direction[] = settings.direction === "mixed" ? ["zh-de", "de-zh"] : [settings.direction];
       const pick = pickCard(CARDS, dirs, await getProgress(), Date.now(), lastKey);
       lastKey = pick.key;
+      void markPrompted();
       modal = new Modal(buildPrompt(pick.card, pick.dir, settings.strict));
       const outcome = await modal.open();
       await recordOutcome(pick.key, outcome);

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "undoomscroll",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Unterbricht Doomscrolling mit Vokabelkarten Deutsch ↔ Chinesisch.",
   "icons": {
     "48": "icons/icon.svg",

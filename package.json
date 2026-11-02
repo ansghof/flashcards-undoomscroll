@@ -1,6 +1,6 @@
 {
   "name": "undoomscroll",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Interrupts doomscrolling with German ↔ Chinese flashcards.",
   "type": "module",
