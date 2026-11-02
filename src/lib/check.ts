@@ -4,17 +4,27 @@ export type Direction = "zh-de" | "de-zh";
 
 const ARTICLE = /^(der|die|das)\s+/;
 const UMLAUTS: Record<string, string> = { ä: "ae", ö: "oe", ü: "ue", ß: "ss" };
+/** Dictionary placeholders ("etw. ansehen") that nobody types. */
+const PLACEHOLDER = /(^|\s)(etw|jdn|jdm|jds|jd|jmd|jmdn|jmdm|jmds)\.?(?=\s|$)/g;
 
 function base(s: string): string {
   return s.normalize("NFC").trim().toLowerCase().replace(/\s+/g, " ");
 }
 
 export function normalizeGerman(s: string, strict: boolean): string {
-  let t = base(s).replace(/[.!?,;:]+$/, "");
+  let t = base(s).replace(/[.!?,;:]+$/, "").replace(PLACEHOLDER, " ").replace(/\s+/g, " ").trim();
   if (!strict) {
     t = t.replace(ARTICLE, "").replace(/[äöüß]/g, (c) => UMLAUTS[c]);
   }
   return t;
+}
+
+/** Strict mode demands the article only where the deck has one ("Apfel" from HSK doesn't). */
+function germanMatches(gloss: string, input: string, strict: boolean): boolean {
+  const g = normalizeGerman(gloss, strict);
+  const i = normalizeGerman(input, strict);
+  if (!strict || ARTICLE.test(g)) return g === i;
+  return g === i.replace(ARTICLE, "");
 }
 
 /** Hanzi compare: whitespace and punctuation don't matter, characters do. */
@@ -32,8 +42,7 @@ export function checkAnswer(card: Card, dir: Direction, input: string, strict: b
     const answer = normalizeHanzi(input);
     return answer !== "" && answer === normalizeHanzi(card.hanzi);
   }
-  const answer = normalizeGerman(input, strict);
-  return answer !== "" && card.de.some((d) => normalizeGerman(d, strict) === answer);
+  return input.trim() !== "" && card.de.some((d) => germanMatches(d, input, strict));
 }
 
 /**

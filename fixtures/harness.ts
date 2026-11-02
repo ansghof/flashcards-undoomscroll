@@ -1,5 +1,6 @@
-// Runs the content script on a plain page. index.html installs an in-memory
-// `browser.storage` stub first, so nothing needs to be installed.
+// Runs the content script on a plain page. stub.js provides `browser.*`; the
+// real background script is bundled in so card picking works as installed.
+import "../src/background";
 import { start } from "../src/content/app";
 
 void start("fixture");

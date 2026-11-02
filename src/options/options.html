@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>undoomscroll – Wortschatz</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <header>
+      <img src="../icons/icon.svg" alt="" width="32" height="32">
+      <h1>Wortschatz</h1>
+    </header>
+
+    <section>
+      <h2>HSK</h2>
+      <label class="row">
+        <span>Version</span>
+        <select id="hsk-version">
+          <option value="3">HSK 3.0 (Lehrplan 2026)</option>
+          <option value="2">HSK 2.0</option>
+        </select>
+      </label>
+      <fieldset>
+        <legend>Stufen</legend>
+        <div id="levels" class="levels"></div>
+      </fieldset>
+      <p id="hsk-summary" class="muted"></p>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Eigene Wörter</h2>
+        <label class="inline"><input type="checkbox" id="custom-enabled"> abfragen</label>
+      </div>
+
+      <form id="word-form" autocomplete="off">
+        <label>
+          <span>Schriftzeichen</span>
+          <input id="hanzi" lang="zh-Hans" placeholder="苹果" required>
+        </label>
+        <label>
+          <span>Pinyin <small>optional</small></span>
+          <input id="pinyin" placeholder="píng guǒ">
+        </label>
+        <label class="wide">
+          <span>Deutsch <small>mehrere mit ; trennen</small></span>
+          <input id="german" placeholder="Apfel; der Apfel" required>
+        </label>
+        <div class="actions">
+          <button type="submit" id="save">Hinzufügen</button>
+          <button type="button" id="cancel" class="secondary" hidden>Abbrechen</button>
+          <span id="form-note" class="muted"></span>
+        </div>
+      </form>
+
+      <div class="toolbar">
+        <input type="search" id="filter" placeholder="Suchen …" aria-label="Eigene Wörter durchsuchen">
+        <button type="button" id="import" class="secondary">Importieren …</button>
+        <button type="button" id="export" class="secondary">Exportieren</button>
+        <input type="file" id="import-file" accept=".csv,.tsv,.txt,text/csv,text/plain" hidden>
+      </div>
+      <p id="status" class="muted" role="status"></p>
+
+      <table>
+        <thead>
+          <tr><th>汉字</th><th>Pinyin</th><th>Deutsch</th><th><span class="sr">Aktionen</span></th></tr>
+        </thead>
+        <tbody id="words"></tbody>
+      </table>
+      <p id="empty" class="muted">Noch keine eigenen Wörter.</p>
+      <button type="button" id="clear" class="danger" hidden>Alle eigenen Wörter löschen</button>
+
+      <details>
+        <summary>Importformat</summary>
+        <p>Eine Zeile pro Wort, Spalten durch Komma oder Tab getrennt:</p>
+        <pre>汉字,Pinyin,Deutsch
+苹果,píng guǒ,Apfel; der Apfel
+喜欢,,mögen; gern haben</pre>
+        <p>Pinyin darf leer bleiben oder ganz fehlen (<code>汉字,Deutsch</code>). Mehrere deutsche
+          Bedeutungen mit <code>;</code> trennen. Ankis Export „Notizen als einfacher Text“ funktioniert,
+          wenn die Felder in dieser Reihenfolge sind. Wörter, die es schon gibt, werden ersetzt.</p>
+      </details>
+    </section>
+
+    <footer class="muted">
+      HSK-Wortlisten: <a href="https://github.com/drkameleon/complete-hsk-vocabulary">complete-hsk-vocabulary</a> (MIT).
+      Deutsche Bedeutungen: <a href="https://github.com/gugray/HanDeDict">HanDeDict</a> (CC BY-SA 2.0).
+    </footer>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>

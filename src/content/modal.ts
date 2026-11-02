@@ -118,7 +118,8 @@ export class Modal {
       el("div", { className: "brand" }, "undoomscroll"),
       el("p", { className: "instruction" }, p.instruction),
       el("div", { className: `prompt lang-${p.promptLang}`, lang: p.promptLang }, p.prompt),
-      el("div", { className: "hint-row" }, this.hintButton, this.hintText),
+      // Own words may have no pinyin.
+      el("div", { className: "hint-row", hidden: !p.pinyin }, this.hintButton, this.hintText),
       this.solution,
       form,
       this.feedback,

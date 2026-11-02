@@ -14,8 +14,8 @@ const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
-/** Leitner boxes 1–5; index = box. Box 1 is always due. */
-export const BOX_INTERVALS = [0, 0, 10 * MINUTE, HOUR, DAY, 3 * DAY];
+/** Leitner boxes 1–5; index = box. A missed card (box 1) waits a minute, so it can't loop. */
+export const BOX_INTERVALS = [0, MINUTE, 10 * MINUTE, HOUR, DAY, 3 * DAY];
 export const MAX_BOX = 5;
 
 export function progressKey(cardId: string, dir: Direction): string {
@@ -28,9 +28,16 @@ export interface Pick {
   key: string;
 }
 
+/** Share of prompts that introduce a new card while reviews are due. */
+export const NEW_CARD_SHARE = 0.3;
+/** New cards are drawn at random from this many of the most common unseen ones. */
+const NEW_CARD_WINDOW = 5;
+
 /**
- * Due cards first, lowest box first, random within that box. Unseen cards
- * count as box 1. `avoid` keeps the same card from coming up twice in a row.
+ * Due reviews first (lowest box first, random within the box), mixed with
+ * new cards in rank order (own words, then the most frequent HSK words).
+ * With nothing due and nothing new, the card due soonest. `avoid` keeps the
+ * same card from coming up twice in a row.
  */
 export function pickCard(
   cards: Card[],
@@ -40,23 +47,38 @@ export function pickCard(
   avoid?: string,
   rand: () => number = Math.random,
 ): Pick {
-  let all: (Pick & Progress)[] = [];
+  const seen: (Pick & Progress)[] = [];
+  const unseen: Pick[] = [];
   for (const card of cards) {
     for (const dir of dirs) {
       const key = progressKey(card.id, dir);
-      const p = progress[key] ?? { box: 1, due: 0 };
-      all.push({ card, dir, key, ...p });
+      if (key === avoid) continue;
+      const p = progress[key];
+      if (p) seen.push({ card, dir, key, ...p });
+      else unseen.push({ card, dir, key });
     }
   }
-  if (all.length > 1) all = all.filter((c) => c.key !== avoid);
-
-  const due = all.filter((c) => c.due <= now);
-  if (due.length === 0) {
-    return all.reduce((a, b) => (b.due < a.due ? b : a));
+  if (seen.length === 0 && unseen.length === 0) {
+    // Only the avoided card exists.
+    const card = cards.find((c) => dirs.some((d) => progressKey(c.id, d) === avoid))!;
+    const dir = dirs.find((d) => progressKey(card.id, d) === avoid)!;
+    return { card, dir, key: avoid! };
   }
+
+  const due = seen.filter((c) => c.due <= now);
+  const takeNew = unseen.length > 0 && (due.length === 0 || rand() < NEW_CARD_SHARE);
+  if (takeNew) {
+    const window = unseen.sort((a, b) => (a.card.rank ?? 0) - (b.card.rank ?? 0)).slice(0, NEW_CARD_WINDOW);
+    return strip(window[Math.floor(rand() * window.length)]);
+  }
+  if (due.length === 0) return strip(seen.reduce((a, b) => (b.due < a.due ? b : a)));
   const lowest = Math.min(...due.map((c) => c.box));
   const pool = due.filter((c) => c.box === lowest);
-  return pool[Math.floor(rand() * pool.length)];
+  return strip(pool[Math.floor(rand() * pool.length)]);
+}
+
+function strip({ card, dir, key }: Pick): Pick {
+  return { card, dir, key };
 }
 
 export function grade(prev: Progress | undefined, outcome: Outcome, now: number): Progress {

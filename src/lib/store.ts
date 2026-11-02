@@ -1,5 +1,7 @@
 import { ext } from "./browser";
 import type { Direction } from "./check";
+import type { Card } from "./deck";
+import type { HskVersion } from "./hsk";
 import { grade, type Outcome, type ProgressMap } from "./scheduler";
 
 export interface Settings {
@@ -9,6 +11,11 @@ export interface Settings {
   /** Screen lengths of scrolling between prompts. */
   factor: number;
   disabledSites: string[];
+  hskVersion: HskVersion;
+  /** Selected HSK levels of `hskVersion` (HSK 3.0: 7 = levels 7–9). */
+  hskLevels: number[];
+  /** Whether own words are asked. */
+  customEnabled: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -16,7 +23,19 @@ export const DEFAULT_SETTINGS: Settings = {
   strict: false,
   factor: 1,
   disabledSites: [],
+  hskVersion: "3",
+  hskLevels: [1],
+  customEnabled: true,
 };
+
+export async function getCustomCards(): Promise<Card[]> {
+  const { customCards } = await ext.storage.local.get("customCards");
+  return (customCards as Card[] | undefined) ?? [];
+}
+
+export async function setCustomCards(customCards: Card[]): Promise<void> {
+  await ext.storage.local.set({ customCards });
+}
 
 export interface DayStats {
   prompts: number;

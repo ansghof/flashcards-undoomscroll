@@ -1,6 +1,6 @@
 {
   "name": "undoomscroll",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "private": true,
   "description": "Interrupts doomscrolling with German ↔ Chinese flashcards.",
   "type": "module",
@@ -13,7 +13,8 @@
     "start": "npm run build && web-ext run --source-dir dist --start-url https://www.reddit.com",
     "start:android": "npm run build && web-ext run --source-dir dist -t firefox-android",
     "package": "npm run build && web-ext build --source-dir dist --artifacts-dir artifacts --overwrite-dest",
-    "fixture": "esbuild fixtures/harness.ts --bundle --format=iife --target=es2022 --outfile=fixtures/harness.js && python -m http.server 8766 --directory fixtures"
+    "fixture": "npm run build && esbuild fixtures/harness.ts --bundle --format=iife --target=es2022 --outfile=fixtures/harness.js && echo http://localhost:8766/fixtures/ && python -m http.server 8766",
+    "decks": "node tools/build-hsk.mjs"
   },
   "devDependencies": {
     "@types/webextension-polyfill": "0.12.6",

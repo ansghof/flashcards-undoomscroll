@@ -1,6 +1,7 @@
 import { ext } from "../lib/browser";
+import { HSK_LEVELS } from "../lib/hsk";
 import { SITES, type Site } from "../lib/sites";
-import { dayKey, getSettings, getStats, updateSettings, type Settings } from "../lib/store";
+import { dayKey, getCustomCards, getSettings, getStats, updateSettings, type Settings } from "../lib/store";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -42,8 +43,25 @@ async function siteRow(site: Site, settings: Settings): Promise<HTMLLIElement> {
   return li;
 }
 
+async function renderDeck(settings: Settings): Promise<void> {
+  const labels = HSK_LEVELS[settings.hskVersion]
+    .filter(({ level }) => settings.hskLevels.includes(level))
+    .map(({ label }) => label);
+  const own = settings.customEnabled ? (await getCustomCards()).length : 0;
+  $("deck-summary").textContent =
+    `HSK ${settings.hskVersion}.0` +
+    (labels.length ? ` · Stufe ${labels.join(", ")}` : "") +
+    (own ? ` · ${own} eigene` : "");
+}
+
+$("open-options").addEventListener("click", () => {
+  void ext.runtime.openOptionsPage();
+  window.close();
+});
+
 async function render(): Promise<void> {
   const settings = await getSettings();
+  await renderDeck(settings);
   $<HTMLUListElement>("sites").replaceChildren(...(await Promise.all(SITES.map((s) => siteRow(s, settings)))));
   $<HTMLSelectElement>("direction").value = settings.direction;
   $<HTMLSelectElement>("factor").value = String(settings.factor);

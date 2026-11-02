@@ -24,6 +24,18 @@ describe("checkAnswer zh-de", () => {
     expect(checkAnswer(arzt, "zh-de", "die Aerztin", true)).toBe(false);
   });
 
+  it("ignores dictionary placeholders like etw. and jdn.", () => {
+    const kan: Card = { id: "kan", hanzi: "看", pinyin: "kàn", de: ["etw. ansehen", "nach jdm. sehen"] };
+    expect(checkAnswer(kan, "zh-de", "ansehen", true)).toBe(true);
+    expect(checkAnswer(kan, "zh-de", "nach sehen", true)).toBe(true);
+  });
+
+  it("strict: an article is optional where the deck has none (HSK nouns)", () => {
+    const pingguo: Card = { ...apfel, de: ["Apfel"] };
+    expect(checkAnswer(pingguo, "zh-de", "der Apfel", true)).toBe(true);
+    expect(checkAnswer(pingguo, "zh-de", "Apfel", true)).toBe(true);
+  });
+
   it("rejects wrong and empty answers", () => {
     expect(checkAnswer(apfel, "zh-de", "Birne", false)).toBe(false);
     expect(checkAnswer(apfel, "zh-de", "   ", false)).toBe(false);

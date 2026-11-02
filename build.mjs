@@ -4,12 +4,25 @@ import { cpSync, rmSync } from "node:fs";
 const watch = process.argv.includes("--watch");
 
 rmSync("dist", { recursive: true, force: true });
-for (const path of ["manifest.json", "icons", "popup/popup.html", "popup/popup.css"]) {
+for (const path of [
+  "manifest.json",
+  "icons",
+  "decks",
+  "popup/popup.html",
+  "popup/popup.css",
+  "options/options.html",
+  "options/options.css",
+]) {
   cpSync(`src/${path}`, `dist/${path}`, { recursive: true });
 }
 
 const options = {
-  entryPoints: { content: "src/content/index.ts", "popup/popup": "src/popup/popup.ts" },
+  entryPoints: {
+    content: "src/content/index.ts",
+    background: "src/background.ts",
+    "popup/popup": "src/popup/popup.ts",
+    "options/options": "src/options/options.ts",
+  },
   outdir: "dist",
   bundle: true,
   format: "iife",

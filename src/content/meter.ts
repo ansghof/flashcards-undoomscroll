@@ -1,7 +1,7 @@
 /** Scroll distance before the very first prompt; filters out load jitter. */
 const FIRST_SCROLL_PX = 20;
-/** How long after a wheel/touch/key/pointer event scrolling counts as the user's (covers fling momentum). */
-const INTENT_MS = 1500;
+/** How long after a wheel/touch/key/pointer event scrolling counts as the user's (covers fling momentum on phones). */
+const INTENT_MS = 3000;
 const INTENT_EVENTS = ["wheel", "touchstart", "touchmove", "touchend", "keydown", "pointerdown"];
 
 /**

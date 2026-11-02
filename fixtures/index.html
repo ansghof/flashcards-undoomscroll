@@ -30,23 +30,7 @@
     window.hotkeys = 0;
     document.addEventListener("keydown", (e) => { if (e.key === "k") window.hotkeys++; });
   </script>
-  <script>
-    // Kept in sessionStorage so reload behaviour can be tested.
-    const data = JSON.parse(sessionStorage.getItem("undoomscroll") ?? "{}");
-    window.undoomscrollData = data;
-    window.browser = {
-      storage: {
-        local: {
-          get: async (key) => (key in data ? { [key]: structuredClone(data[key]) } : {}),
-          set: async (items) => {
-            Object.assign(data, structuredClone(items));
-            sessionStorage.setItem("undoomscroll", JSON.stringify(data));
-          },
-        },
-        onChanged: { addListener() {} },
-      },
-    };
-  </script>
+  <script src="stub.js"></script>
   <script src="harness.js"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "undoomscroll",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "Unterbricht Doomscrolling mit Vokabelkarten Deutsch ↔ Chinesisch.",
   "icons": {
     "48": "icons/icon.svg",
@@ -12,7 +12,18 @@
     "default_popup": "popup/popup.html",
     "default_icon": "icons/icon.svg"
   },
-  "permissions": ["storage"],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "permissions": [
+    "storage"
+  ],
   "host_permissions": [
     "*://www.youtube.com/*",
     "*://m.youtube.com/*",
@@ -25,7 +36,9 @@
         "*://m.youtube.com/*",
         "*://*.reddit.com/*"
       ],
-      "js": ["content.js"],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_start"
     }
   ],
@@ -33,7 +46,11 @@
     "gecko": {
       "id": "undoomscroll@ansghof",
       "strict_min_version": "140.0",
-      "data_collection_permissions": { "required": ["none"] }
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
     },
     "gecko_android": {
       "strict_min_version": "142.0"

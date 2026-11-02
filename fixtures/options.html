@@ -1,0 +1,14 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>undoomscroll options fixture</title>
+<script src="stub.js"></script>
+<script>
+  // Load the real options page on top of the stub (document.open keeps window.browser).
+  fetch("/dist/options/options.html")
+    .then((r) => r.text())
+    .then((html) => {
+      document.open();
+      document.write(html.replace("<head>", '<head><base href="/dist/options/">'));
+      document.close();
+    });
+</script>

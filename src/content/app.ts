@@ -1,10 +1,10 @@
 import { ext } from "../lib/browser";
 import { checkAnswer, checkCopy, expectedAnswer, type Direction } from "../lib/check";
-import { CARDS, type Card } from "../lib/deck";
-import { pickCard } from "../lib/scheduler";
+import type { Card } from "../lib/deck";
+import type { Pick } from "../lib/scheduler";
+import type { PickRequest } from "../background";
 import {
   getLastPromptAt,
-  getProgress,
   getSettings,
   markPrompted,
   recordOutcome,
@@ -22,7 +22,7 @@ function buildPrompt(card: Card, dir: Direction, strict: boolean): Prompt {
   const toGerman = dir === "zh-de";
   return {
     instruction: toGerman ? "Was heißt das auf Deutsch?" : "Wie schreibt man das auf Chinesisch?",
-    prompt: toGerman ? card.hanzi : card.de.join(" / "),
+    prompt: toGerman ? card.hanzi : card.de.slice(0, 3).join(" / "),
     promptLang: toGerman ? "zh-Hans" : "de",
     expected,
     expectedLang: toGerman ? "de" : "zh-Hans",
@@ -55,8 +55,8 @@ export async function start(siteId: string): Promise<void> {
     meter.locked = true;
     lock.engage();
     try {
-      const dirs: Direction[] = settings.direction === "mixed" ? ["zh-de", "de-zh"] : [settings.direction];
-      const pick = pickCard(CARDS, dirs, await getProgress(), Date.now(), lastKey);
+      const request: PickRequest = { type: "pick", avoid: lastKey };
+      const pick = (await ext.runtime.sendMessage(request)) as Pick;
       lastKey = pick.key;
       void markPrompted();
       modal = new Modal(buildPrompt(pick.card, pick.dir, settings.strict));
