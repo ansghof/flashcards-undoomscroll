@@ -8,13 +8,16 @@ answer — and if you answer wrong, you type the correct answer three times.
 
 | Platform | Status | Notes |
 |---|---|---|
-| Firefox desktop | primary | Manifest V3, event-page background |
+| Firefox desktop | primary | Manifest V3 |
 | Firefox for Android | primary | same build, flagged via `gecko_android`; see §8 |
 | Chrome / Edge / Opera | secondary | same source, second build target (service worker) |
 | Safari | out of scope | would need an Xcode wrapper |
 
-One codebase, built with **WXT** (Vite-based, emits Firefox + Chrome builds).
-TypeScript throughout. `browser.*` namespace (WXT polyfills it for Chrome).
+One codebase: TypeScript bundled with **esbuild** (`build.mjs`) and a hand-written
+manifest, `web-ext` for running/linting. (WXT was the original plan; plain
+esbuild has fewer moving parts. The Chrome build will need a small manifest
+transform: PNG icons, `service_worker` if a background script is ever added.)
+Code uses `browser.*` and falls back to `chrome.*`.
 
 Manifest essentials:
 
@@ -22,17 +25,17 @@ Manifest essentials:
 {
   "manifest_version": 3,
   "name": "undoomscroll",
-  "background": { "scripts": ["background.js"], "service_worker": "background.js" },
   "permissions": ["storage", "scripting"],
   "optional_host_permissions": ["*://*.youtube.com/*", "*://*.reddit.com/*", "..."],
   "browser_specific_settings": {
-    "gecko": { "id": "undoomscroll@ansghof", "strict_min_version": "128.0" },
-    "gecko_android": { "strict_min_version": "128.0" }
+    "gecko": { "id": "undoomscroll@ansghof", "strict_min_version": "140.0" },
+    "gecko_android": { "strict_min_version": "142.0" }
   }
 }
 ```
 
-Each browser picks its own background key and ignores the other.
+Minimums are 140 / 142 because AMO requires `data_collection_permissions`,
+which those versions introduced. The MVP needs no background script.
 
 ## 2. Core loop
 
@@ -216,7 +219,9 @@ JSON export/import for backups.
 
 - **Vitest:** answer checker (hanzi NFC matching, articles, strict/lenient),
   Leitner scheduling, CSV import.
-- **Playwright:** modal + scroll lock on local fixture pages (page scroll,
+- **Fixture page** (`fixtures/`, `npm run fixture`): runs the content script
+  with a storage stub, no install needed. Later automated with **Playwright**:
+  modal + scroll lock (page scroll,
   inner container, swipe feed).
 - **Manual matrix:** Firefox desktop, Firefox Android, Chrome — on YouTube,
   Reddit, X at minimum.

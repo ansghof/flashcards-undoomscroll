@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>undoomscroll</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="../icons/icon.svg" alt="" width="28" height="28">
+    <h1>undoomscroll</h1>
+  </header>
+
+  <section class="today">
+    <h2>Heute</h2>
+    <div class="stats">
+      <div><strong id="prompts">0</strong><span>Karten</span></div>
+      <div><strong id="correct">0</strong><span>richtig</span></div>
+      <div><strong id="wrong">0</strong><span>falsch</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Seiten</h2>
+    <ul id="sites"></ul>
+  </section>
+
+  <section>
+    <h2>Einstellungen</h2>
+    <label class="row">
+      <span>Richtung</span>
+      <select id="direction">
+        <option value="mixed">Gemischt</option>
+        <option value="zh-de">中文 → Deutsch</option>
+        <option value="de-zh">Deutsch → 中文</option>
+      </select>
+    </label>
+    <label class="row">
+      <span>Karte alle</span>
+      <select id="factor">
+        <option value="0.5">½ Bildschirm</option>
+        <option value="1">1 Bildschirm</option>
+        <option value="2">2 Bildschirme</option>
+        <option value="3">3 Bildschirme</option>
+      </select>
+    </label>
+    <label class="row">
+      <span>Streng<small>Artikel und Umlaute müssen stimmen</small></span>
+      <input type="checkbox" id="strict">
+    </label>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>
